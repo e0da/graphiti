@@ -1,17 +1,58 @@
+x-neo4j-base: &neo4j-base
+  image: neo4j:5.26.0
+  environment:
+    - NEO4J_AUTH=${NEO4J_USER:-neo4j}/${NEO4J_PASSWORD:-demodemo}
+    - NEO4J_server_memory_heap_initial__size=512m
+    - NEO4J_server_memory_heap_max__size=1G
+    - NEO4J_server_memory_pagecache_size=512m
+  volumes:
+    - neo4j_data:/data
+    - neo4j_logs:/logs
+
+x-neo4j-scripts: &neo4j-scripts
+  volumes:
+    - ./tmp/neo4j-dumps:/dumps
+    - ./scripts/neo4j-dump.sh:/neo4j-dump.sh
+    - ./scripts/neo4j-load.sh:/neo4j-load.sh
+    - ./scripts/neo4j-config.sh:/neo4j-config.sh
+
+x-neo4j-dump: &neo4j-dump
+  image: neo4j:5.26.0
+  environment:
+    - NEO4J_AUTH=${NEO4J_USER:-neo4j}/${NEO4J_PASSWORD:-demodemo}
+    - NEO4J_server_memory_heap_initial__size=512m
+    - NEO4J_server_memory_heap_max__size=1G
+    - NEO4J_server_memory_pagecache_size=512m
+  volumes:
+    - neo4j_data:/data
+    - neo4j_logs:/logs
+    - ./tmp/neo4j-dumps:/dumps
+    - ./scripts/neo4j-dump.sh:/neo4j-dump.sh
+    - ./scripts/neo4j-load.sh:/neo4j-load.sh
+    - ./scripts/neo4j-config.sh:/neo4j-config.sh
+
+x-neo4j-load: &neo4j-load
+  image: neo4j:5.26.0
+  environment:
+    - NEO4J_AUTH=${NEO4J_USER:-neo4j}/${NEO4J_PASSWORD:-demodemo}
+    - NEO4J_server_memory_heap_initial__size=512m
+    - NEO4J_server_memory_heap_max__size=1G
+    - NEO4J_server_memory_pagecache_size=512m
+    - DUMP_FILE=${DUMP_FILE}
+  volumes:
+    - neo4j_data:/data
+    - neo4j_logs:/logs
+    - ./tmp/neo4j-dumps:/dumps
+    - ./scripts/neo4j-dump.sh:/neo4j-dump.sh
+    - ./scripts/neo4j-load.sh:/neo4j-load.sh
+    - ./scripts/neo4j-config.sh:/neo4j-config.sh
+
 services:
   neo4j:
-    image: neo4j:5.26.0
+    <<: *neo4j-base
     ports:
       - "7474:7474" # HTTP
       - "7687:7687" # Bolt
-    environment:
-      - NEO4J_AUTH=${NEO4J_USER:-neo4j}/${NEO4J_PASSWORD:-demodemo}
-      - NEO4J_server_memory_heap_initial__size=512m
-      - NEO4J_server_memory_heap_max__size=1G
-      - NEO4J_server_memory_pagecache_size=512m
-    volumes:
-      - neo4j_data:/data
-      - neo4j_logs:/logs
     healthcheck:
       test: ["CMD", "wget", "-O", "/dev/null", "http://localhost:7474"]
       interval: 10s
@@ -50,6 +91,18 @@ services:
         "--group-id",
         "${GROUP_ID:-default}",
       ]
+
+  # Neo4j dump container - run manually to create database dumps
+  neo4j-dump:
+    <<: *neo4j-dump
+    profiles: ["dump"]
+    command: ["/neo4j-dump.sh"]
+
+  # Neo4j load container - run manually to load database from dumps
+  neo4j-load:
+    <<: *neo4j-load
+    profiles: ["load"]
+    command: ["/neo4j-load.sh"]
 
 volumes:
   neo4j_data:

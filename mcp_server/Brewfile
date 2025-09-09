@@ -1,0 +1,8 @@
+# Brewfile for Graphiti MCP Server
+# Install dependencies for local development
+
+# Neo4j tools for database operations
+brew "neo4j"
+
+# Note: neo4j formula includes cypher-shell
+# This enables local execution of neo4j-dump.sh and neo4j-load.sh scripts
