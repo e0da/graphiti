@@ -101,6 +101,7 @@ The server uses the following environment variables:
 - `AZURE_OPENAI_EMBEDDING_API_VERSION`: Optional Azure OpenAI API version
 - `AZURE_OPENAI_USE_MANAGED_IDENTITY`: Optional use Azure Managed Identities for authentication
 - `SEMAPHORE_LIMIT`: Episode processing concurrency. See [Concurrency and LLM Provider 429 Rate Limit Errors](#concurrency-and-llm-provider-429-rate-limit-errors)
+- `GROUP_ID`: Namespace for the knowledge graph data (default: `default`). This allows you to organize and separate different datasets or projects within the same Neo4j instance.
 
 You can set these variables in a `.env` file in the project directory.
 
@@ -198,6 +199,7 @@ This will start both the Neo4j database and the Graphiti MCP server. The Docker 
 - Connects to the Neo4j container using the environment variables
 - Exposes the server on port 8000 for HTTP-based SSE transport
 - Includes a healthcheck for Neo4j to ensure it's fully operational before starting the MCP server
+- Configures a consistent `group_id` for organizing knowledge graph data (defaults to `default` unless `GROUP_ID` environment variable is set)
 
 ## Integrating with MCP Clients
 

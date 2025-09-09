@@ -39,8 +39,17 @@ services:
       - PATH=/root/.local/bin:${PATH}
       - SEMAPHORE_LIMIT=${SEMAPHORE_LIMIT:-10}
     ports:
-      - "8000:8000" # Expose the MCP server via HTTP for SSE transport
-    command: ["uv", "run", "graphiti_mcp_server.py", "--transport", "sse"]
+      - "${PORT:-8000}:8000" # Expose the MCP server via HTTP for SSE transport
+    command:
+      [
+        "uv",
+        "run",
+        "graphiti_mcp_server.py",
+        "--transport",
+        "sse",
+        "--group-id",
+        "${GROUP_ID:-default}",
+      ]
 
 volumes:
   neo4j_data:
